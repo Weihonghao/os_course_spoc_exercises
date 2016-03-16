@@ -41,7 +41,7 @@ def find_value(addr):
 
 if __name__ == "__main__":
     data = dict()
-    f = open("./03-2-data.txt")
+    f = open("./data.txt")
     line = f.readline()
     while True:
         if line:
@@ -52,5 +52,5 @@ if __name__ == "__main__":
         else:
             break
     f.close()
-    print(find_value("03df"))
-    print(find_value("69dc"))
+    print(find_value("6653"))
+    print(find_value("1c13"))
