@@ -9,26 +9,26 @@ condition1 = threading.Condition()
 condition2 = threading.Condition()
 frame = 0
 wheel = 0
-N = 10
+N = 12
+#参考https://github.com/chyyuu/ucore_os_lab/tree/master/related_info/lab7/semaphore_condition中的生产者和消费者模型
 
-class Worker1(threading.Thread):
+class Worker1(threading.Thread):#是通过继承Thread类，重写它的run方法来创建Thread，第三种方法
     def __init__(self):
         threading.Thread.__init__(self)
 
     def run(self):
         global condition1, frame
         while True:
-            if condition1.acquire():
+            if condition1.acquire():#通过acquire判断一些条件
                 if frame < N - 1:
-                    frame += 1;
-                    print "Worker1(%s):deliver one1, now products:%s" %(self.name, frame)
-                    print ""
-                    condition1.notify()
+                    frame += 1
+                    print "Worker1(%s):finished one frame, the number of the products:%s" %(self.name, frame)
+                    condition1.notify()#条件满足，进行一些处理改变条件后，通过notify方法通知其他线程
                 else:
-                    print "Worker1(%s):already 9, stop deliver, now products:%s" %(self.name, frame)
-                    condition1.wait();
+                    print "Worker1(%s):already 11, waiting, now products:%s" %(self.name, frame)
+                    condition1.wait()#条件不满足则wait
                 condition1.release()
-                time.sleep(2)
+                time.sleep(3)
 
 class Worker2(threading.Thread):
     def __init__(self):
@@ -39,16 +39,15 @@ class Worker2(threading.Thread):
         while True:
             if condition2.acquire():
                 if wheel < N-2:
-                    wheel += 1;
-                    print "Worker2(%s):deliver one2, now products:%s" %(self.name, wheel)
-                    print ""
+                    wheel += 2
+                    print "Worker2(%s):finished two wheels, the number of the products:%s" %(self.name, wheel)
                     condition2.notify()
                 else:
-                    print "Worker2(%s):already 8, stop deliver, now products:%s" %(self.name, wheel)
-                    condition2.wait();
+                    print "Worker2(%s):already 10, waiting, now products:%s" %(self.name, wheel)
+                    condition2.wait()
                 condition2.release()
-                time.sleep(2)
-class Consumer(threading.Thread):
+                time.sleep(3)
+class Worker3(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
 
@@ -58,28 +57,28 @@ class Consumer(threading.Thread):
             if condition1.acquire():
                 if frame > 1:
                     frame -= 1
-                    print "!!!!!!!!!!!Consumer(%s):consume frame, now frame:%s, wheel:%s" %(self.name, frame,wheel)
+                    print "Worker3(%s):used one frame, now frame:%s, wheel:%s" %(self.name, frame,wheel)
                     condition1.notify()
                 else:
-                    print "Consumer(%s): stop consume frame, frame:%s,wheel:%s" %(self.name, frame,wheel)
-                    condition1.wait();
+                    print "Worker3(%s): waiting, frame:%s,wheel:%s----------------------------" %(self.name, frame,wheel)
+                    condition1.wait()
                 condition1.release()
-                time.sleep(2)
+                time.sleep(3)
             if condition2.acquire():
                 if wheel > 2:
                     wheel-=2
-                    print "$$$$$$$$$$$Consumer(%s):consume wheels and create a car, now frame:%s, wheel:%s" %(self.name, frame,wheel)
+                    print "Worker3(%s):used two wheels, now frame:%s, wheel:%s" %(self.name, frame,wheel)
                     condition2.notify()
                 else:
-                    print "Consumer(%s): stop consume wheels, frame:%s,wheel:%s" %(self.name, frame,wheel)
-                    condition2.wait();
+                    print "Worker3(%s): waiting, frame:%s,wheel:%s---------------------------------" %(self.name, frame,wheel)
+                    condition2.wait()
                 condition2.release()
-                time.sleep(2)
+                time.sleep(3)
 
 if __name__ == "__main__":
-    p1 = Worker1()
-    p1.start()
-    p2 = Worker2()
-    p2.start()
-    c = Consumer()
-    c.start()
+    w1 = Worker1()
+    w1.start()
+    w2 = Worker2()
+    w2.start()
+    w3 = Worker3()
+    w3.start()
